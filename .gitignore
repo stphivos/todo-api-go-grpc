@@ -1,0 +1,18 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, build with `go test -c`
+*.test
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+
+# https://github.com/golang/dep/blob/master/docs/FAQ.md#should-i-commit-my-vendor-directory
+vendor/
+
+# Mac
+.DS_Store

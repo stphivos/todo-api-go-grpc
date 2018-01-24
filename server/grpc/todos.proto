@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package grpc;
+
+service Todos {
+    rpc GetTodos(Request) returns (Response) {}
+}
+
+message Request {
+    string token = 1;
+}
+
+message Response {
+    message Todo {
+        string id = 1;
+        string title = 2;
+        string tag = 3;
+        int32 priority = 4;
+    }
+
+    repeated Todo todos = 1;
+}
