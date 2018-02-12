@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/jinzhu/configor"
+	"github.com/joho/godotenv"
 	"github.com/stphivos/todo-api-go-grpc/models"
 	"github.com/stphivos/todo-api-go-grpc/server"
 )
@@ -23,11 +24,17 @@ func main() {
 }
 
 func getConfig() *models.Config {
-	config := new(models.Config)
-	err := configor.Load(config, "config.yml")
+	err := godotenv.Load()
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	config := new(models.Config)
+	err = configor.Load(config, "config.yml")
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	log.Println("Configuration:", *config)
 	return config
 }

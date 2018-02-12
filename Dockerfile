@@ -1,6 +1,7 @@
 FROM golang:1.9.2-alpine AS build
 
 # Build args
+ARG ENV
 ARG PROJECT
 ENV PROJECT_SRC=/go/src/${PROJECT}
 
@@ -24,6 +25,7 @@ RUN go build -o /project/server
 
 # Copy config file to output directory
 COPY ./config.yml /project/
+COPY ./.env.${ENV} /project/.env
 
 # This results in a small single layer image
 FROM alpine:latest

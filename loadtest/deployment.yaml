@@ -1,0 +1,90 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: locust-master
+  namespace: default
+  labels:
+    component: $COMPONENT
+    role: $ROLE
+    type: master
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: $COMPONENT
+      role: $ROLE
+      type: master
+  template:
+    metadata:
+      labels:
+        component: $COMPONENT
+        role: $ROLE
+        type: master
+        tag: "$TAG"
+    spec:
+      containers:
+        - name: locust
+          image: $IMAGE_NAME:$TAG
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: LOCUST_MODE
+              value: master
+            - name: TARGET_HOST
+              value: todo-api.default.svc.cluster.local:80
+          ports:
+            - name: loc-master-web
+              containerPort: 8089
+              protocol: TCP
+            - name: loc-master-p1
+              containerPort: 5557
+              protocol: TCP
+            - name: loc-master-p2
+              containerPort: 5558
+              protocol: TCP
+          resources:
+            requests:
+              cpu: 0.5
+              memory: 512Mi
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: locust-worker
+  labels:
+    component: $COMPONENT
+    role: $ROLE
+    type: worker
+spec:
+  replicas: 14
+  selector:
+    matchLabels:
+      component: $COMPONENT
+      role: $ROLE
+      type: worker
+  template:
+    metadata:
+      labels:
+        component: $COMPONENT
+        role: $ROLE
+        type: worker
+        tag: "$TAG"
+    spec:
+      initContainers:
+        - name: locust-wait-master
+          image: busybox
+          command: ['sh', '-c', 'until nslookup $SERVICE_NAME; do echo waiting for $SERVICE_NAME; sleep 2; done;']
+      containers:
+        - name: locust
+          image: $IMAGE_NAME:$TAG
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: LOCUST_MODE
+              value: worker
+            - name: LOCUST_MASTER
+              value: locust-master
+            - name: TARGET_HOST
+              value: todo-api.default.svc.cluster.local:80
+          resources:
+            requests:
+              cpu: 0.4
+              memory: 512Mi
