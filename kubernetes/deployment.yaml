@@ -1,0 +1,52 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: $SERVICE_NAME-$COLOR
+  namespace: default
+  labels:
+    env: $ENV
+    color: $COLOR
+    component: $COMPONENT
+    role: $ROLE
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      env: $ENV
+      color: $COLOR
+      component: $COMPONENT
+      role: $ROLE
+  template:
+    metadata:
+      labels:
+        env: $ENV
+        color: $COLOR
+        component: $COMPONENT
+        role: $ROLE
+        tag: "$TAG"
+    spec:
+      containers:
+      - name: $SERVICE_NAME
+        image: $IMAGE_NAME:$TAG
+        env:
+        - name: COLOR
+          value: $COLOR
+        ports:
+        - containerPort: $CONTAINER_PORT
+          name: transport
+        readinessProbe:
+          tcpSocket:
+            port: transport
+          initialDelaySeconds: 15
+        livenessProbe:
+          tcpSocket:
+            port: transport
+          initialDelaySeconds: 30
+        resources:
+          # https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/#meaning-of-cpu
+          requests:
+            cpu: 100m
+            memory: 100Mi
+          limits:
+            cpu: 100m
+            memory: 100Mi

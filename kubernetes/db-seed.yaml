@@ -1,0 +1,30 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  labels:
+    env: $ENV
+    component: $COMPONENT
+    role: mongodb-seed
+  name: $SERVICE_NAME-db-seed-$TAG
+  namespace: default
+spec:
+  completions: 1
+  activeDeadlineSeconds: 120
+  template:
+    metadata:
+      labels:
+        env: $ENV
+        component: $COMPONENT
+        role: mongodb-seed
+    spec:
+      containers:
+      - name: $SERVICE_NAME-db-seed
+        image: bitnami/mongodb
+        command:
+          - mongo
+          - TodosDB
+          - --host
+          - todo-api-mongodb
+          - --eval
+          - 'db.todos.insert({ "title": "Add my todos", "tag": "default", "priority": 1 });'
+      restartPolicy: Never
